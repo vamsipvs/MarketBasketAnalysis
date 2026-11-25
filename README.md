@@ -93,28 +93,28 @@ FP-Growth avoids candidate generation and needs only two scans of the data.
 The data is extremely sparse: millions of actors, only a handful per movie, so few itemsets are frequent and the FP-tree compresses well.
 
 **Weaknesses and issues to be aware of**
-1. Trivial rules. Confidence = 1.0 with huge lift means the actors co-occur in essentially one production (or a small series). The rules describe "same cast of the same franchise" rather than non-obvious associations. Possible improvements: dedupe episodes/versions of the same title, restrict to feature films, or filter by .numVotes
-2. Grouping by title. Basket identity should be the title ID (), not the title string. Different movies share the same title, and contains many localised titles per movie, which can duplicate or merge baskets incorrectly.tconsttitle.akas
-Inconsistent support definitions. FP-Growth uses a relative threshold (0.0001) while A-Priori uses an absolute count (2). The two results are therefore not directly comparable.
-3. No quantitative comparison. The report gives no runtimes, number of baskets, number of frequent itemsets, or memory usage, so the claims about scalability and performance are not backed by measurements.
-4. A-Priori failure is not demonstrated. The statement that A-Priori "could not provide confidence for low values" lacks supporting output, such as the number of candidates per level or timing/OOM evidence.
-5. Scalability section is generic. It describes Spark (DAG scheduler, Catalyst, RDDs) rather than measuring the project's scaling. The claim that the "default datatype is String, which occupies relatively less memory" is questionable, and "regular expressions" are mentioned but not used in the described pipeline.
-6. Data description errors. is documented as "0 - Adult, 1 - not Adult", which is reversed (0 = non-adult, 1 = adult in IMDb). should be . includes up to three genres.isAdultaverageRatingsaverageRatinggenres
-7. Pre-processing wording. The explanation of / on "primary names of the actor" is unclear; the order of operations (group, then split, then explode) is not fully specified.split()explode()
-8. Smaller types. "priori", "supportrdd/supportRDD", "Inorder", "creat", "detector of similar items" (leftover from a different project template).
-9. Reproducibility. No code, Spark version, cluster configuration, or sampling description is included.
+   1. Trivial rules. Confidence = 1.0 with huge lift means the actors co-occur in essentially one production (or a small series). The rules describe "same cast of    the same franchise" rather than non-obvious associations. Possible improvements: dedupe episodes/versions of the same title, restrict to feature films, or         filter by .numVotes
+   2. Grouping by title. Basket identity should be the title ID (), not the title string. Different movies share the same title, and contains many localised          titles per movie, which can duplicate or merge baskets incorrectly.tconsttitle.akas
+   Inconsistent support definitions. FP-Growth uses a relative threshold (0.0001) while A-Priori uses an absolute count (2). The two results are therefore not        directly comparable.
+   3. No quantitative comparison. The report gives no runtimes, number of baskets, number of frequent itemsets, or memory usage, so the claims about scalability      and performance are not backed by measurements.
+   4. A-Priori failure is not demonstrated. The statement that A-Priori "could not provide confidence for low values" lacks supporting output, such as the number     of candidates per level or timing/OOM evidence.
+   5. Scalability section is generic. It describes Spark (DAG scheduler, Catalyst, RDDs) rather than measuring the project's scaling. The claim that the "default     datatype is String, which occupies relatively less memory" is questionable, and "regular expressions" are mentioned but not used in the described pipeline.
+   6. Data description errors. is documented as "0 - Adult, 1 - not Adult", which is reversed (0 = non-adult, 1 = adult in IMDb). should be . includes up to three    genres.isAdultaverageRatingsaverageRatinggenres
+   7. Pre-processing wording. The explanation of / on "primary names of the actor" is unclear; the order of operations (group, then split, then explode) is not       fully specified.split()explode()
+   8. Smaller types. "priori", "supportrdd/supportRDD", "Inorder", "creat", "detector of similar items" (leftover from a different project template).
+   9. Reproducibility. No code, Spark version, cluster configuration, or sampling description is included.
 
 7. **Suggested Repository Structure**
-.
-├── README.md
-├── report/
-│   └── Market_basket_IMDb.pdf
-├── notebooks/
-│   ├── 01_preprocessing.ipynb
-│   ├── 02_fpgrowth.ipynb
-│   └── 03_apriori_rdd.ipynb
-├── data/            # not committed; download from Kaggle
-└── requirements.txt
+   .
+   ├── README.md
+   ├── report/
+   │   └── Market_basket_IMDb.pdf
+   ├── notebooks/
+   │   ├── 01_preprocessing.ipynb
+   │   ├── 02_fpgrowth.ipynb
+   │   └── 03_apriori_rdd.ipynb
+   ├── data/            # not committed; download from Kaggle
+   └── requirements.txt
 
 8. **How to Run (outline)**
 
@@ -123,5 +123,9 @@ Inconsistent support definitions. FP-Growth uses a relative threshold (0.0001) w
 3. Run the pre-processing notebook to build baskets (one row per title, array of actor names).
 4. Run FP-Growth:
 python
-from pyspark.ML.fpm import FPGrowth fp = FPGrowth(itemsCol="actors", minSupport=0.0001, minConfidence=0.001) model = fp.fit(baskets) model.freqItemsets.show() model.associationRules.show()
+   from pyspark.ml.fpm import FPGrowth
+   fp = FPGrowth(itemsCol="actors", minSupport=0.0001, minConfidence=0.001)
+   model = fp.fit(baskets)
+   model.freqItemsets.show()
+   model.associationRules.show()
 5. Run the A-Priori RDD notebook with .min_support = 2
